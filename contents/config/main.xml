@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0">
+    <group name="General">
+        <entry name="viewMode" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="showRainProbability" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="showWind" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="iconAnimation" type="String">
+            <default>hover</default>
+        </entry>
+        <entry name="backgroundStyle" type="String">
+            <default>dark</default>
+        </entry>
+        <entry name="autoScrollHour" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="weatherSource" type="String">
+            <default>both</default>
+        </entry>
+        <entry name="locationName" type="String">
+            <default>Helsinki</default>
+        </entry>
+        <entry name="locationCountry" type="String">
+            <default>Finland</default>
+        </entry>
+        <entry name="locationLatitude" type="Double">
+            <default>60.1699</default>
+        </entry>
+        <entry name="locationLongitude" type="Double">
+            <default>24.9384</default>
+        </entry>
+    </group>
+</kcfg>

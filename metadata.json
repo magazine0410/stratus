@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "magazine"
+            }
+        ],
+        "Category": "Environment and Weather",
+        "Description": "Weather forecast for 24 hours, 3 days or 7 days, from Open-Meteo and the Finnish Meteorological Institute",
+        "Icon": "weather-clear",
+        "Id": "com.magazine.weatherreporting",
+        "License": "GPL-3.0-or-later",
+        "Name": "Stratus",
+        "Version": "0.1.0",
+        "Website": "https://github.com/magazine0410/stratus"
+    },
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-MainScript": "ui/main.qml",
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-NotificationArea": "true",
+    "X-Plasma-NotificationAreaCategory": "SystemServices"
+}
