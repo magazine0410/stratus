@@ -9,7 +9,7 @@
         "Category": "Environment and Weather",
         "Description": "Weather forecast for 24 hours, 3 days or 7 days, from Open-Meteo and the Finnish Meteorological Institute",
         "Icon": "weather-clear",
-        "Id": "com.magazine.weatherreporting",
+        "Id": "com.magazine.stratus",
         "License": "GPL-3.0-or-later",
         "Name": "Stratus",
         "Version": "0.1.0",

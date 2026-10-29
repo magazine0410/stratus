@@ -21,7 +21,7 @@ Later updates: `git pull`, then `kpackagetool6 --type Plasma/Applet --upgrade st
 For development, a symbolic link keeps every file change live:
 
 ```bash
-ln -s "$PWD/stratus" ~/.local/share/plasma/plasmoids/com.magazine.weatherreporting
+ln -s "$PWD/stratus" ~/.local/share/plasma/plasmoids/com.magazine.stratus
 ```
 
 To put it in the system tray, restart the shell (`systemctl --user restart plasma-plasmashell`),

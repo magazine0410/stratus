@@ -9,7 +9,7 @@ shows the weather that is now on an animated scene, and a forecast for 24 hours,
 It can be on the desktop, on a panel, or in the system tray.
 
 The folder is installed with a symbolic link:
-`~/.local/share/plasma/plasmoids/com.magazine.weatherreporting` -> this folder.
+`~/.local/share/plasma/plasmoids/com.magazine.stratus` -> this folder.
 Thus each file change is immediately live. Do not copy the files to the plasmoids folder.
 
 ## Commands
@@ -17,7 +17,7 @@ Thus each file change is immediately live. Do not copy the files to the plasmoid
 Preview the applet in a window (the fastest way to see a change):
 
 ```bash
-plasmawindowed com.magazine.weatherreporting
+plasmawindowed com.magazine.stratus
 ```
 
 **Run-time QML messages do not go to the stderr of that command. They go to the journal.** Thus
@@ -57,7 +57,7 @@ the file first, and put it back after the test.
 Show the applet metadata as the package system reads it:
 
 ```bash
-kpackagetool6 --type Plasma/Applet --show com.magazine.weatherreporting
+kpackagetool6 --type Plasma/Applet --show com.magazine.stratus
 ```
 
 An applet on the panel does not reload `metadata.json` or `main.xml` changes. Restart the shell:
