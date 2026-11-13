@@ -119,7 +119,10 @@ The block at the top of the widget (`hero` in `main.qml`) shows it on an animate
 `cat` and `isDay`. The parts come from KWeather, GPL-2.0-or-later; `backgrounds/README.md` lists
 the changes. There are no image files. The scene has a `running` property: it is false when
 `iconAnimation` is `static`, and in the tray while the popup is closed (`root.expanded`), thus a
-closed popup costs nothing. The rain and the snow repaint a canvas every 16 ms while running.
+closed popup costs nothing. Each raindrop and snowflake is a `Rectangle` moved by its own
+`NumberAnimation`. **Do not use a `Canvas` for the scene**: the earlier rain and snow repainted a
+canvas every 16 ms, which made plasmashell grow by about 1 MB per minute (measured) and cost
+about 18% of a CPU core.
 
 ### The hourly view
 
@@ -233,8 +236,20 @@ configuration properties change. But the 30-minute `autoRefresh` timer then neve
 
 The symbols are animated SVG files in `contents/icons/meteocons/` (Meteocons, MIT). Each file has
 the name of a **widget category**, not the Meteocons name; `VIS` in `weather.js` gives the file name
-and the tool tip text for each category. `WeatherIcon.qml` shows them with `QtQuick.VectorImage`
-and controls the movement with the `iconAnimation` setting (`static`, `hover`, `always`).
+and the tool tip text for each category. The SVG files are the source; `svgtoqml` makes a QML file
+of each in `contents/icons/meteocons/qml/` (the command is in the README there).
+`WeatherIcon.qml` loads the QML file with a `Loader` and controls the movement with the
+`iconAnimation` setting (`static`, `hover`, `always`) through the file's `animations.paused`.
+
+**Do not show the symbols with `QtQuick.VectorImage`.** In Qt 6.11.2 a `VectorImage` makes the
+process use more memory all the time while its animations run: about 0.6 MB per minute for each
+symbol, with both renderers, with or without `animations.loops`, also with the software backend.
+Fifteen animated symbols made plasmashell grow by gigabytes in a day. The QML that `svgtoqml` makes
+from the same files looks the same and does not grow (measured with `qml` and `RssAnon` in
+`/proc/<pid>/status`). After a change of an SVG file, make its QML file again.
+
+`qmllint` reports `Member "animations" not found on type "QObject"` for `WeatherIcon.qml`: it can
+not know the type of a `Loader` item. This one warning is expected.
 
 What Qt 6.11 does and does not do with animated SVG — all measured with `qml` and frame grabs,
 not read from documentation:

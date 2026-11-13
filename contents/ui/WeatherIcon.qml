@@ -1,10 +1,11 @@
 import QtQuick
-import QtQuick.VectorImage
 import org.kde.plasma.components as PC3
 
 /* Weather symbol. "v" comes from Weather.vis() and gives the file name and the tool tip text.
-   The symbols are animated SVG files (Meteocons, see ../icons/meteocons/README.md).
-   Qt 6.10 and later turn the SVG transform animations into Qt Quick animations. */
+   The symbols are animated SVG files (Meteocons, see ../icons/meteocons/README.md), made into
+   QML files with svgtoqml (../icons/meteocons/qml/). VectorImage shows the same SVG files with
+   the same look, but in Qt 6.11 it makes the process use more memory all the time while the
+   animations run (about 0.6 MB per minute for each symbol, measured); the QML files do not. */
 Item {
     id: icon
 
@@ -20,14 +21,17 @@ Item {
     implicitWidth: size
     implicitHeight: size
 
-    VectorImage {
+    Loader {
         id: image
         anchors.fill: parent
-        source: icon.v ? Qt.resolvedUrl("../icons/meteocons/" + icon.v.icon + ".svg") : ""
-        preferredRendererType: VectorImage.CurveRenderer
-        fillMode: VectorImage.PreserveAspectFit
-        animations.loops: Animation.Infinite
-        animations.paused: !icon.animating
+        source: icon.v ? Qt.resolvedUrl("../icons/meteocons/qml/" + icon.v.icon + ".qml") : ""
+        /* The files are square (128 x 128) and scale themselves to their width and height. */
+        onLoaded: {
+            item.width = Qt.binding(() => image.width);
+            item.height = Qt.binding(() => image.height);
+            item.animations.loops = Animation.Infinite;
+            item.animations.paused = Qt.binding(() => !icon.animating);
+        }
     }
 
     PC3.ToolTip.visible: ma.containsMouse && icon.v

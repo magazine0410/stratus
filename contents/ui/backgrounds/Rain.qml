@@ -6,62 +6,62 @@
  */
 import QtQuick
 
-/* Falling rain: short lines on a canvas, drawn again every 16 ms while running.
-   "drops" is the number of lines and "speed" their pace; a slow drop is also a short and
-   thin streak. Drizzle uses few, slow drops. */
-Canvas {
-    id: canvas
+/* Falling rain: short streaks, each moved by its own animation, thus no drawing code runs for
+   each frame. "drops" is the number of streaks and "speed" their pace; a slow drop is also a
+   short and thin streak. Drizzle uses few, slow drops.
+   A Canvas that was painted again every 16 ms made plasmashell use more memory all the time
+   (about 1 MB per minute, measured) and much CPU time; animated items do neither. */
+Item {
+    id: rain
     property bool running: true
     property int drops: 80
     property real speed: 1.0
-    property var particles: []
 
-    renderStrategy: Canvas.Threaded
-    onPaint: {
-        var ctx = getContext("2d");
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-        ctx.lineWidth = 2 + speed;
-        ctx.lineCap = 'round';
-        ctx.clearRect(0, 0, width, height);
-        for (var c = 0; c < particles.length; c++) {
-            var p = particles[c];
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x, p.y + p.l * p.ys);
-            ctx.stroke();
-        }
-        for (var b = 0; b < particles.length; b++) {
-            var q = particles[b];
-            q.y += q.ys;
-            if (q.x < 1 || q.x > width || q.y > height) {
-                q.x = Math.random() * width;
-                q.y = -20;
+    /* The Repeater makes new drops when "drops" changes, also when the category changes from
+       drizzle to rain while the scene is on the screen. */
+    Repeater {
+        model: rain.drops
+
+        Rectangle {
+            id: drop
+            /* The canvas moved a drop "ys" pixels each 16 ms and drew it "l * ys" long. */
+            readonly property real ys: (Math.random() * 10 + 10) * rain.speed
+            readonly property real l: 2 + Math.random() * 4
+            /* Where the drop is when the scene starts, as a part of the height. */
+            readonly property real start: Math.random()
+
+            width: 2 + rain.speed
+            height: l * ys + width
+            radius: width / 2
+            color: Qt.rgba(1, 1, 1, 0.5)
+            x: Math.random() * rain.width
+            y: -20
+
+            /* First from the start place to the bottom, then from above the top to the bottom
+               again and again, at the pace of the canvas version. */
+            SequentialAnimation on y {
+                id: fall
+                running: rain.running && rain.height > 0
+                NumberAnimation {
+                    from: drop.start * rain.height
+                    to: rain.height
+                    duration: (1 - drop.start) * rain.height / drop.ys * 16
+                }
+                NumberAnimation {
+                    from: -20
+                    to: rain.height
+                    duration: (rain.height + 20) / drop.ys * 16
+                    loops: Animation.Infinite
+                }
+            }
+
+            /* An animation reads "to" and "duration" only when it starts. */
+            Connections {
+                target: rain
+                function onHeightChanged() {
+                    if (fall.running) fall.restart();
+                }
             }
         }
     }
-    Timer {
-        interval: 16
-        running: canvas.running
-        repeat: true
-        onTriggered: canvas.requestPaint()
-    }
-
-    /* New drops, also when the category changes from drizzle to rain while the scene is
-       on the screen: the Loader keeps this item and only changes "drops". */
-    function reset() {
-        var init = [];
-        for (var a = 0; a < drops; a++) {
-            init.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                l: 2 + Math.random() * 4,
-                ys: (Math.random() * 10 + 10) * speed
-            });
-        }
-        particles = init;
-    }
-
-    Component.onCompleted: reset()
-    onDropsChanged: reset()
-    onSpeedChanged: reset()
 }

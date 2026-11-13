@@ -27,3 +27,17 @@ and only one drop falls.
 Therefore `opacity="0"` is removed from each element that animates its opacity. All drops are then
 visible and fall with their own delay. The `<animate attributeName="opacity">` elements are still
 in the files: they do nothing now, but they will work if Qt gets support later.
+
+## The QML files
+
+The widget does not show the SVG files directly. `qml/` holds a QML file for each SVG file, made by
+`svgtoqml` (Qt 6.11). `QtQuick.VectorImage` shows the SVG files with the same look, but its running
+animations make the process use more memory all the time (about 0.6 MB per minute for each symbol,
+measured with Qt 6.11.2); the QML files do not. Do not edit the QML files. After a change of an SVG
+file, make them again in this folder:
+
+```bash
+for f in *.svg; do
+  /usr/lib64/qt6/bin/svgtoqml -c --copyright-statement "Meteocons by Bas Milius, MIT License (see ../LICENSE). Generated from ../$f by svgtoqml; do not edit, see ../README.md." "$f" "qml/${f%.svg}.qml"
+done
+```

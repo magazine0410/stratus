@@ -6,8 +6,7 @@ of KDE: https://invent.kde.org/utilities/kweather, folder `src/qml/backgrounds/`
 
 License: GPL-2.0-or-later. The SPDX headers stay in each file.
 
-The scenes are drawn with Qt Quick only: a gradient, rectangles, and a canvas for the rain and
-the snow. There are no image files.
+The scenes are drawn with Qt Quick only: a gradient and rectangles. There are no image files.
 
 ## Changes from the originals
 
@@ -24,3 +23,8 @@ the snow. There are no image files.
 - Partly cloudy day shows the sun with the clouds; the original has only the clouds.
 - The sun uses looping animations instead of a restart at each turn, and unused imports are
   removed.
+- The rain and the snow are rectangles, each moved by its own `NumberAnimation`, instead of a
+  `Canvas` that is painted again every 16 ms. The sizes, the number of drops, the pace and the
+  colours are the same. The canvas made plasmashell use about 1 MB more memory each minute and
+  much CPU time. A snowflake has a small minimum pace, thus it crosses the scene in at most about
+  40 s; in the original, a flake could stand almost still.

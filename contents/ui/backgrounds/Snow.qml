@@ -6,51 +6,57 @@
  */
 import QtQuick
 
-/* Falling snow: 80 circles on a canvas, drawn again every 16 ms while running.
-   The flakes are half of the KWeather original size. */
-Canvas {
-    id: canvas
+/* Falling snow: 80 circles, each moved by its own animation, thus no drawing code runs for each
+   frame. The flakes are half of the KWeather original size.
+   A Canvas that was painted again every 16 ms made plasmashell use more memory all the time
+   (about 1 MB per minute, measured) and much CPU time; animated items do neither. */
+Item {
+    id: snow
     property bool running: true
-    property var particles: []
 
-    renderStrategy: Canvas.Threaded
-    onPaint: {
-        var ctx = getContext("2d");
-        ctx.clearRect(0, 0, width, height);
-        for (var c = 0; c < particles.length; c++) {
-            var p = particles[c];
-            ctx.beginPath();
-            ctx.arc(p.x, p.y + p.ys, p.l, 0, 2 * Math.PI, false);
-            ctx.fillStyle = Qt.rgba(1, 1, 1, p.a);
-            ctx.fill();
-        }
-        for (var b = 0; b < particles.length; b++) {
-            var q = particles[b];
-            q.y += q.ys;
-            if (q.x < 1 || q.x > width || q.y > height) {
-                q.x = Math.random() * width;
-                q.y = -20;
+    Repeater {
+        model: 80
+
+        Rectangle {
+            id: flake
+            /* The canvas moved a flake "ys" pixels each 16 ms. The small minimum gives each
+               animation a finite duration: a flake crosses the scene in at most about 40 s. */
+            readonly property real ys: Math.max(0.05, Math.random())
+            readonly property real l: 2.5 + Math.random() * 5
+            /* Where the flake is when the scene starts, as a part of the height. */
+            readonly property real start: Math.random()
+
+            /* The canvas drew a circle around (x, y) with the radius "l". */
+            width: 2 * l
+            height: width
+            radius: l
+            color: Qt.rgba(1, 1, 1, 0.4 + Math.random() * 0.6)
+            x: Math.random() * snow.width - l
+            y: -20 - l
+
+            SequentialAnimation on y {
+                id: fall
+                running: snow.running && snow.height > 0
+                NumberAnimation {
+                    from: flake.start * snow.height - flake.l
+                    to: snow.height - flake.l
+                    duration: (1 - flake.start) * snow.height / flake.ys * 16
+                }
+                NumberAnimation {
+                    from: -20 - flake.l
+                    to: snow.height - flake.l
+                    duration: (snow.height + 20) / flake.ys * 16
+                    loops: Animation.Infinite
+                }
+            }
+
+            /* An animation reads "to" and "duration" only when it starts. */
+            Connections {
+                target: snow
+                function onHeightChanged() {
+                    if (fall.running) fall.restart();
+                }
             }
         }
-    }
-    Timer {
-        interval: 16
-        running: canvas.running
-        repeat: true
-        onTriggered: canvas.requestPaint()
-    }
-
-    Component.onCompleted: {
-        var init = [];
-        for (var a = 0; a < 80; a++) {
-            init.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                l: 2.5 + Math.random() * 5,
-                ys: Math.random(),
-                a: 0.4 + Math.random() * 0.6
-            });
-        }
-        particles = init;
     }
 }
